@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    // JONA PMI: espacio compartido.
+    match /users/shared/{document=**} { allow read, write: if signedIn(); }
+    // Agenda: clave común + claves antiguas (solo para la migración automática de datos previos).
+    match /artifacts/mi-agenda-diaria/users/{key}/{document=**} { allow read, write: if signedIn(); }
+    // JonaRPG: documento compartido.
+    match /rpg/{document=**} { allow read, write: if signedIn(); }
+  }
+}
